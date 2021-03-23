@@ -20,7 +20,7 @@
                 </li>
                 @endauth
                 <li>
-                    <a href="#" class="p-3">Посты</a>
+                    <a href="{{ route('posts.index') }}" class="p-3">Посты</a>
                 </li>
             </ul>
 
