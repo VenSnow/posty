@@ -3,6 +3,7 @@
 @section('content')
     <div class="flex justify-center">
         <div class="w-8/12 bg-white p-6 rounded-lg">
+            @auth
             <form action="{{ route('posts.store') }}" method="post" class="mb-4">
                 @csrf
                 <label for="body" class="sr-only">Текст</label>
@@ -16,33 +17,51 @@
 
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 mt-3 rounded font-medium">Опубликовать</button>
             </form>
+            @endauth
+            @guest
+                <div class="flex justify-center mb-5">
+                    <p class="font-bold">Войдите на сайт чтобы опубликовать пост</p>
+                </div>
+            @endguest
             @if($posts->count())
                 @foreach($posts as $post)
+                    <hr>
                     <div class="mb-4">
                         <a href="#" class="font-bold">{{ $post->user->username }}</a> <span class="text-gray-600 text-sm">{{ $post->created_at->diffForHumans() }}</span>
                     </div>
                     <p class="mb-2">
                         {{ $post->body }}
                     </p>
-
-                    <div class="flex items-center">
-                        @if (!$post->likedBy(auth()->user()))
-                            <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
-                                @csrf
-                                <button type="submit" class="text-blue-500">Нравится</button>
-                            </form>
-                        @else
-                            <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
+                    @auth
+                        @if($post->ownedBy(auth()->user()))
+                            <form action="{{ route('posts.destroy', $post) }}" method="post">
                                 @method('DELETE')
                                 @csrf
-                                <button type="submit" class="text-blue-500">Не нравится</button>
+                                <button type="submit" class="text-red-500">Удалить</button>
                             </form>
                         @endif
+                    @endauth
+
+                    <div class="flex items-center mb-5">
+                        @auth
+                            @if (!$post->likedBy(auth()->user()))
+                                <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
+                                    @csrf
+                                    <button type="submit" class="text-blue-500">Нравится</button>
+                                </form>
+                            @else
+                                <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
+                                    @method('DELETE')
+                                    @csrf
+                                    <button type="submit" class="text-blue-500">Не нравится</button>
+                                </form>
+                            @endif
+                        @endauth
                         <span>{{ $post->likes->count() }} нравится</span>
                     </div>
-
                 @endforeach
 
+                <hr>
                 {{ $posts->links() }}
             @else
                 <p>Постов пока что нет <i>:(</i></p>
