@@ -24,7 +24,26 @@
                     <p class="mb-2">
                         {{ $post->body }}
                     </p>
+
+                    <div class="flex items-center">
+                        @if (!$post->likedBy(auth()->user()))
+                            <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
+                                @csrf
+                                <button type="submit" class="text-blue-500">Нравится</button>
+                            </form>
+                        @else
+                            <form action="{{ route('posts.likes', $post) }}" method="post" class="mr-2">
+                                @method('DELETE')
+                                @csrf
+                                <button type="submit" class="text-blue-500">Не нравится</button>
+                            </form>
+                        @endif
+                        <span>{{ $post->likes->count() }} нравится</span>
+                    </div>
+
                 @endforeach
+
+                {{ $posts->links() }}
             @else
                 <p>Постов пока что нет <i>:(</i></p>
             @endif
